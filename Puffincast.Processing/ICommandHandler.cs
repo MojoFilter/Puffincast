@@ -43,7 +43,8 @@ namespace Puffincast.Processing
         private Task<string> Help(string user, string cmd) =>
             Task.FromResult("Here are the commands:\n" +
                 string.Join(Environment.NewLine,
-                    this.commands.Select((c, i) =>
+                    this.commands.OrderBy(c=>c.Name)
+                    .Select((c, i) =>
                     $"*{c.Name.PadRight(15)}* {c.Description}")));
 
         private async Task<string> List(string user, string cmd) =>
@@ -53,6 +54,9 @@ namespace Puffincast.Processing
 
         private Task<string> Status(string user, string cmd) =>
             this.control.GetNowPlaying();
+
+        private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
+
         private IEnumerable<Command> InitCommands() => new[]
         {
             new Command
@@ -72,7 +76,32 @@ namespace Puffincast.Processing
                 Name = "?",
                 Description = "Get the current track",
                 Invoke = (_, __) => this.control.GetNowPlaying()
+            },
+            new Command
+            {
+                Name = "Next",
+                Description = "Skip to the next track",
+                Invoke = (_, __) => Try(control.Next())
+            },
+            new Command
+            {
+                Name = "Prev",
+                Description = "You know what this does",
+                Invoke = (_, __) => Try(control.Prev())
+            },
+            new Command
+            {
+                Name = "Play",
+                Description = "Play the currently queued track",
+                Invoke = (_, __) => Try(control.Play())
+            },
+            new Command
+            {
+                Name = "Pause",
+                Description = "Pause PuffinCast radio",
+                Invoke = (_, __) => Try(control.Pause())
             }
+
         };
 
         class Command

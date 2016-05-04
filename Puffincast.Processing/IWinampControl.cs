@@ -13,6 +13,10 @@ namespace Puffincast.Processing
     {
         Task<IEnumerable<string>> GetPlaylist();
         Task<string> GetNowPlaying();
+        Task<bool> Next();
+        Task<bool> Play();
+        Task<bool> Pause();
+        Task<bool> Prev();
     }
 
     public class HttpQWinampControl : IWinampControl
@@ -51,6 +55,17 @@ namespace Puffincast.Processing
             }
             
         }
+
+        private async Task<bool> Try(string command, object parameters = null) =>
+            await this.Request(command, parameters) == "1";
+
+        public Task<bool> Next() => Try("next");
+
+        public Task<bool> Play() => Try("play");
+
+        public Task<bool> Pause() => Try("pause");
+
+        public Task<bool> Prev() => Try("prev");
 
         class ConnectionInfo
         {
