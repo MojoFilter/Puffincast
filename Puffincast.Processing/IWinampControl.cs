@@ -12,6 +12,7 @@ namespace Puffincast.Processing
     public interface IWinampControl
     {
         Task<IEnumerable<string>> GetPlaylist();
+        Task<string> GetNowPlaying();
     }
 
     public class HttpQWinampControl : IWinampControl
@@ -25,20 +26,24 @@ namespace Puffincast.Processing
             this.settings = settings;
         }
 
-        public async Task<IEnumerable<string>> GetPlaylist()
-        {
-            return (await this.Request("getplaylisttitlelist", new { delim = Environment.NewLine })).Split(Delimiter);
-        }
+        public async Task<IEnumerable<string>> GetPlaylist() =>
+            (await this.Request("getplaylisttitlelist", new { delim = Environment.NewLine }))
+            .Split(Delimiter);
 
-        private async Task<string> Request(string command, object parameters)
+        public Task<string> GetNowPlaying() => this.Request("getcurrenttitle");
+        
+
+        private async Task<string> Request(string command, object parameters = null)
         {
             Func<string, string> encode = WebUtility.UrlEncode;
             var cfg = new ConnectionInfo(this.settings.ControlConnectionString);
-            var uri = $"{cfg.BaseUri}/{command}?p={encode(cfg.Password)}" +
+            var uriParams = parameters == null ? string.Empty :
                 string.Join(string.Empty,
                     parameters.GetType().GetProperties()
                     .Select(p => $"&{encode(p.Name)}={encode(p.GetValue(parameters) as string)}"));
-
+            
+            var uri = $"{cfg.BaseUri}/{command}?p={encode(cfg.Password)}{uriParams}";
+                
             using (var response = (HttpWebResponse)(await WebRequest.CreateHttp(uri).GetResponseAsync()))
             using (var reader = new StreamReader(response.GetResponseStream()))
             {

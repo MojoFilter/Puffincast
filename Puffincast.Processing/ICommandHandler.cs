@@ -17,18 +17,69 @@ namespace Puffincast.Processing
         private IWinampControl control;
         private ISettingsProvider settings;
 
+        private IEnumerable<Command> commands;
+
         public CommandHandler(ISettingsProvider settings, IWinampControl control = null)
         {
             Contract.Requires(settings != null);
 
             this.settings = settings;
             this.control = control ?? new HttpQWinampControl(this.settings);
+            this.commands = this.InitCommands();
         }
-        public async Task<string> Execute(string user, string command)
+
+        public async Task<string> Execute(string user, string commandText)
         {
-            var list = await this.control.GetPlaylist();
-            return string.Join("\n",
-                list.Select((t, i) => $"{i + 1}) {t}"));
+            commandText = commandText ?? string.Empty;
+            var command = commandText.Split(new[] { ' ' }, 1).First();
+            Command cmd = this.commands.FirstOrDefault(c => command.StartsWith(c.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (cmd == null)
+            {
+                return "Huh? " + await this.Help(user, command);
+            }
+            return await cmd.Invoke(user, command);
+        }
+
+        private Task<string> Help(string user, string cmd) =>
+            Task.FromResult("Here are the commands:\n" +
+                string.Join(Environment.NewLine,
+                    this.commands.Select((c, i) =>
+                    $"*{c.Name.PadRight(15)}* {c.Description}")));
+
+        private async Task<string> List(string user, string cmd) =>
+            string.Join(Environment.NewLine,
+                (await this.control.GetPlaylist())
+                .Select((t, i) => $"{i + 1}) {t}"));
+
+        private Task<string> Status(string user, string cmd) =>
+            this.control.GetNowPlaying();
+        private IEnumerable<Command> InitCommands() => new[]
+        {
+            new Command
+            {
+                Name = "Help",
+                Description = "List available commands",
+                Invoke = this.Help
+            },
+            new Command
+            {
+                Name = "List",
+                Description = "View the current playlist",
+                Invoke = this.List
+            },
+            new Command
+            {
+                Name = "",
+                Description = "Get the current track",
+                Invoke = (_, __) => this.control.GetNowPlaying()
+            }
+        };
+
+        class Command
+        {
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public Func<string, string, Task<string>> Invoke { get; set; }
         }
     }
 }
