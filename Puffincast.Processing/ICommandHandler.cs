@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,21 @@ namespace Puffincast.Processing
 
     public class CommandHandler : ICommandHandler
     {
-        public Task<string> Execute(string user, string command)
+        private IWinampControl control;
+        private ISettingsProvider settings;
+
+        public CommandHandler(ISettingsProvider settings, IWinampControl control = null)
         {
-            return Task.FromResult("Send the mothership.");
+            Contract.Requires(settings != null);
+
+            this.settings = settings;
+            this.control = control ?? new HttpQWinampControl(this.settings);
+        }
+        public async Task<string> Execute(string user, string command)
+        {
+            var list = await this.control.GetPlaylist();
+            return string.Join("\n",
+                list.Select((t, i) => $"{i + 1}) {t}"));
         }
     }
 }
