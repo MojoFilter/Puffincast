@@ -69,7 +69,7 @@ namespace Puffincast.Processing
             },
             new Command
             {
-                Name = "",
+                Name = "?",
                 Description = "Get the current track",
                 Invoke = (_, __) => this.control.GetNowPlaying()
             }
