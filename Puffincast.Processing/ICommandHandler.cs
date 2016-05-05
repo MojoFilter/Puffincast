@@ -47,10 +47,19 @@ namespace Puffincast.Processing
                     .Select((c, i) =>
                     $"*{c.Name.PadRight(15)}* {c.Description}")));
 
-        private async Task<string> List(string user, string cmd) =>
-            string.Join(Environment.NewLine,
-                (await this.control.GetPlaylist())
-                .Select((t, i) => $"{i + 1}) {t}"));
+        private async Task<string> List(string user, string cmd)
+        {
+            var playlist = await this.control.GetPlaylist();
+            var result = new StringBuilder();
+            result.AppendFormat("You're hearing:\n\t*{0}*\n\n", playlist.Current);
+            if (playlist.Last != null)
+            {
+                result.AppendFormat("You just heard:\n\t*{0}*\n\n", playlist.Last);
+            }
+            result.AppendLine("Coming Up:");
+            result.Append(string.Join(Environment.NewLine, playlist.Next.Select((t, i) => $"{i + 1}) {t}")));
+            return result.ToString();
+        }
 
         private Task<string> Status(string user, string cmd) =>
             this.control.GetNowPlaying();

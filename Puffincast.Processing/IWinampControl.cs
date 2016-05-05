@@ -11,12 +11,19 @@ namespace Puffincast.Processing
 {
     public interface IWinampControl
     {
-        Task<IEnumerable<string>> GetPlaylist();
+        Task<Playlist> GetPlaylist();
         Task<string> GetNowPlaying();
         Task<bool> Next();
         Task<bool> Play();
         Task<bool> Pause();
         Task<bool> Prev();
+    }
+
+    public class Playlist
+    {
+        public string Last { get; set; }
+        public string Current { get; set; }
+        public IEnumerable<string> Next { get; set; }
     }
 
     public class HttpQWinampControl : IWinampControl
@@ -30,9 +37,19 @@ namespace Puffincast.Processing
             this.settings = settings;
         }
 
-        public async Task<IEnumerable<string>> GetPlaylist() =>
-            (await this.Request("getplaylisttitlelist", new { delim = Environment.NewLine }))
+        public async Task<Playlist> GetPlaylist()
+        {
+            var fullList =
+            (await this.Request("getplaylisttitlelist", new { delim = Delimiter}))
             .Split(Delimiter);
+            var pos = Convert.ToInt32(await this.Request("getlistpos"));
+            return new Playlist
+            {
+                Last = (pos == 0) ? null : fullList[pos - 1],
+                Current = fullList[pos],
+                Next = fullList.Skip(pos + 1)
+            };
+        }
 
         public Task<string> GetNowPlaying() => this.Request("getcurrenttitle");
         
@@ -44,7 +61,7 @@ namespace Puffincast.Processing
             var uriParams = parameters == null ? string.Empty :
                 string.Join(string.Empty,
                     parameters.GetType().GetProperties()
-                    .Select(p => $"&{encode(p.Name)}={encode(p.GetValue(parameters) as string)}"));
+                    .Select(p => $"&{encode(p.Name)}={encode(p.GetValue(parameters).ToString())}"));
             
             var uri = $"{cfg.BaseUri}/{command}?p={encode(cfg.Password)}{uriParams}";
                 
