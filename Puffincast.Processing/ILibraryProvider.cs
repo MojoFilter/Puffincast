@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -28,7 +30,7 @@ namespace Puffincast.Processing
 
     public class MlwwwLibraryProvider : ILibraryProvider
     {
-        private static readonly string UriBase = "http://shout.danhax.com:81/";
+        private static readonly string UriBase = "http://shout.danhax.com:4801/";
 
         private static readonly string YoloTemplate =
             "right.html?query=%3FARTIST+HAS+\"{0}\"+or+ALBUM+HAS+\"{0}\"+or+TITLE+HAS+\"{0}\"+or+TRACKNO+HAS+\"{0}\"+or+GENRE+HAS+\"{0}\"+or+FILENAME+HAS+\"{0}\"+or+YEAR+HAS+\"{0}\"+or+COMMENT+HAS+\"{0}\"";
@@ -47,9 +49,11 @@ namespace Puffincast.Processing
             var uri = string.Format(YoloTemplate, yolo);
             XNamespace ns = "http://www.w3.org/1999/xhtml";
             using (var response = await Get(uri))
+                using (var reader = new StreamReader(response.GetResponseStream()))
             {
+                var doc = XDocument.Parse(PreprocessXhtml(await reader.ReadToEndAsync()));
                 return
-                    from album in XDocument.Load(response.GetResponseStream()).Descendants(ns + "table")
+                    from album in doc.Descendants(ns + "table")
                     where (string)album.Attribute("class") == "album"
                     let artist = album.Descendants(ns + "a").First().Value
                     from track in album.Descendants(ns + "tr").Skip(2)
@@ -63,6 +67,14 @@ namespace Puffincast.Processing
         static string FormatKey(string artist, string title) =>
             $"%3FARTIST+HAS+\"{WebUtility.UrlEncode(artist)}\"+and+TITLE+HAS+\"{WebUtility.UrlEncode(title)}\"";
         
-
+        private static string PreprocessXhtml(string xhtml)
+        {
+            var docType = @"<!DOCTYPE .*>";
+            var newDocType = @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"" [
+   <!ENTITY euml ""&#235;"">
+   <!ENTITY nbsp ""&#160;"">
+]>";
+            return Regex.Replace(xhtml, docType, newDocType);
+        }
     }
 }

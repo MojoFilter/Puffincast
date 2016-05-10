@@ -16,22 +16,25 @@ namespace Puffincast.Processing
     {
         private IWinampControl control;
         private ISettingsProvider settings;
+        private ILibraryProvider library;
 
         private IEnumerable<Command> commands;
 
-        public CommandHandler(ISettingsProvider settings, IWinampControl control = null)
+        public CommandHandler(ISettingsProvider settings, IWinampControl control = null, 
+            ILibraryProvider library = null)
         {
             Contract.Requires(settings != null);
 
             this.settings = settings;
             this.control = control ?? new HttpQWinampControl(this.settings);
+            this.library = library ?? new MlwwwLibraryProvider();
             this.commands = this.InitCommands();
         }
 
         public async Task<string> Execute(string user, string commandText)
         {
-            commandText = commandText ?? string.Empty;
-            var command = commandText.Split(new[] { ' ' }, 1).First();
+            //commandText = commandText ?? string.Empty;
+            var command = commandText ?? string.Empty; //.Split(new[] { ' ' }, 1).First();
             Command cmd = this.commands.FirstOrDefault(c => command.StartsWith(c.Name, StringComparison.InvariantCultureIgnoreCase));
             if (cmd == null)
             {
@@ -63,6 +66,37 @@ namespace Puffincast.Processing
 
         private Task<string> Status(string user, string cmd) =>
             this.control.GetNowPlaying();
+
+        private Random rnd = new Random();
+
+        private async Task<string> Play(string user, string cmd)
+        {
+            if (cmd.Length > 6)
+            {
+                var query = cmd.Substring(6);
+                var matches = (await this.library.Search(query)).ToList();
+                if (matches.Any())
+                {
+                    var pick = matches.ElementAt(rnd.Next(0, matches.Count()));
+                    if (await this.library.Enqueue(pick.Key))
+                    {
+                        return $":+1: Loaded up _#{pick.Name}_";
+                    }
+                    else
+                    {
+                        return $":-1: Had some kind of problem trying to play _#{pick.Name}_";
+                    }
+                }
+                else
+                {
+                    return $"Couldn't find anything to match _#{query}_";
+                }
+            }
+            else
+            {
+                return await Try(control.Play());
+            }
+        }
 
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
@@ -102,7 +136,7 @@ namespace Puffincast.Processing
             {
                 Name = "Play",
                 Description = "Play the currently queued track",
-                Invoke = (_, __) => Try(control.Play())
+                Invoke = Play
             },
             new Command
             {
