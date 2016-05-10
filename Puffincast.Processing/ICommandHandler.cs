@@ -17,17 +17,20 @@ namespace Puffincast.Processing
         private IWinampControl control;
         private ISettingsProvider settings;
         private ILibraryProvider library;
+        private IPuffinBot puffinBot;
 
         private IEnumerable<Command> commands;
 
         public CommandHandler(ISettingsProvider settings, IWinampControl control = null, 
-            ILibraryProvider library = null)
+            ILibraryProvider library = null, IPuffinBot puffinBot = null)
         {
             Contract.Requires(settings != null);
 
             this.settings = settings;
             this.control = control ?? new HttpQWinampControl(this.settings);
             this.library = library ?? new MlwwwLibraryProvider();
+            this.puffinBot = puffinBot ?? new PuffinBot();
+
             this.commands = this.InitCommands();
         }
 
@@ -80,6 +83,7 @@ namespace Puffincast.Processing
                     var pick = matches.ElementAt(rnd.Next(0, matches.Count()));
                     if (await this.library.Enqueue(pick.Key))
                     {
+                        await puffinBot.NotifyEnqueue(user, pick.Name);
                         return $":+1: Loaded up _#{pick.Name}_";
                     }
                     else
