@@ -104,16 +104,16 @@ namespace Puffincast.Processing
                     if (await this.library.Enqueue(pick.Key))
                     {
                         await puffinBot.NotifyEnqueue(user, pick.Name);
-                        return $":+1: Loaded up _#{pick.Name}_";
+                        return $":+1: Loaded up _{pick.Name}_";
                     }
                     else
                     {
-                        return $":-1: Had some kind of problem trying to play _#{pick.Name}_";
+                        return $":-1: Had some kind of problem trying to play _{pick.Name}_";
                     }
                 }
                 else
                 {
-                    return $"Couldn't find anything to match _#{query}_";
+                    return $"Couldn't find anything to match _{query}_";
                 }
             }
             else
