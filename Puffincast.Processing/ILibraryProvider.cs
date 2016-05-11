@@ -13,6 +13,7 @@ namespace Puffincast.Processing
 {
     public interface ILibraryProvider
     {
+        Task<IEnumerable<Track>> Search();
         Task<IEnumerable<Track>> Search(string yolo);
         Task<IEnumerable<Track>> Search(object fields);
         Task<bool> Enqueue(string key);
@@ -46,6 +47,9 @@ namespace Puffincast.Processing
             return (await Get(uri)).StatusCode == HttpStatusCode.OK;
         }
 
+        public Task<IEnumerable<Track>> Search() => 
+            Query("");
+
         public Task<IEnumerable<Track>> Search(string yolo) =>
             Query(string.Format(YoloTemplate, yolo));
 
@@ -58,7 +62,7 @@ namespace Puffincast.Processing
                 try
                 {
                     var doc = XDocument.Parse(PreprocessXhtml(await reader.ReadToEndAsync()));
-                    return
+                    var list =
                         from album in doc.Descendants(ns + "table")
                         where (string)album.Attribute("class") == "album"
                         let artist = album.Descendants(ns + "a").First().Value
@@ -67,6 +71,8 @@ namespace Puffincast.Processing
                         let name = $"{artist} - {title}"
                         let key = FormatKey(artist, title)
                         select new Track(name, key);
+
+                    return list;
                 }
                 catch (XmlException)
                 {
