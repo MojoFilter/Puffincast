@@ -86,7 +86,7 @@ namespace Puffincast.Processing
         }
 
         static string FormatKey(string artist, string title) =>
-            $"%3FARTIST+HAS+\"{WebUtility.UrlEncode(artist)}\"+and+TITLE+HAS+\"{WebUtility.UrlEncode(title)}\"";
+            $"%3FARTIST+LIKE+\"{WebUtility.UrlEncode(artist)}\"+and+TITLE+LIKE+\"{WebUtility.UrlEncode(title)}\"";
         
         private static string PreprocessXhtml(string xhtml)
         {
