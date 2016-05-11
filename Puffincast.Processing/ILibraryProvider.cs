@@ -14,6 +14,7 @@ namespace Puffincast.Processing
     public interface ILibraryProvider
     {
         Task<IEnumerable<Track>> Search(string yolo);
+        Task<IEnumerable<Track>> Search(object fields);
         Task<bool> Enqueue(string key);
     }
 
@@ -45,12 +46,14 @@ namespace Puffincast.Processing
             return (await Get(uri)).StatusCode == HttpStatusCode.OK;
         }
 
-        public async Task<IEnumerable<Track>> Search(string yolo)
+        public Task<IEnumerable<Track>> Search(string yolo) =>
+            Query(string.Format(YoloTemplate, yolo));
+
+        private async Task<IEnumerable<Track>> Query(string uri)
         {
-            var uri = string.Format(YoloTemplate, yolo);
             XNamespace ns = "http://www.w3.org/1999/xhtml";
             using (var response = await Get(uri))
-                using (var reader = new StreamReader(response.GetResponseStream()))
+            using (var reader = new StreamReader(response.GetResponseStream()))
             {
                 try
                 {
@@ -70,6 +73,16 @@ namespace Puffincast.Processing
                     return Enumerable.Empty<Track>();
                 }
             }
+        }
+
+        public Task<IEnumerable<Track>> Search(object fields)
+        {
+            var parameters = string.Join("+and+",
+                fields.GetType()
+                .GetProperties()
+                .Select(p => $"{p.Name.ToUpper()}+LIKE+\"{p.GetValue(fields)}\""));
+            var uri = "right.html?query=%3F" + parameters;
+            return Query(uri);
         }
 
         static string FormatKey(string artist, string title) =>

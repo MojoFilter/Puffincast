@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Puffincast.Processing
@@ -78,7 +79,20 @@ namespace Puffincast.Processing
             if (cmd.Length > 5)
             {
                 var query = cmd.Substring(5);
-                var matches = (await this.library.Search(query)).ToList();
+                IEnumerable<Track> matches;
+                var rxMatch = Regex.Match(query, "(?<artist>.+) - (?<title>.+)");
+                if (rxMatch.Success)
+                {
+                    matches = (await this.library.Search(new
+                    {
+                        Artist = rxMatch.Groups["artist"].Value,
+                        Title = rxMatch.Groups["title"].Value
+                    }));
+                }
+                else
+                {
+                    matches = (await this.library.Search(query)).ToList();
+                }
                 if (matches.Any())
                 {
                     if (!allowFuzzy && matches.Count() > 1)
