@@ -147,7 +147,7 @@ namespace Puffincast.Processing
             new Command
             {
                 Name = "Play",
-                Description = "Play the currently queued track",
+                Description = "Play the currently queued track, or queue up a random track that matches the search term provided",
                 Invoke = Play
             },
             new Command
@@ -159,7 +159,7 @@ namespace Puffincast.Processing
             new Command
             {
                 Name = "Pick",
-                Description = "Enqueue a specific track.",
+                Description = "Enqueue a specific track",
                 Invoke = Pick
             }
 
