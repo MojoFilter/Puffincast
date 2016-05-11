@@ -72,14 +72,20 @@ namespace Puffincast.Processing
 
         private Random rnd = new Random();
 
-        private async Task<string> Play(string user, string cmd)
-        {
-            if (cmd.Length > 6)
+        private Task<string> Play(string user, string cmd) => this.Play(user, cmd, true);
+
+        private async Task<string> Play(string user, string cmd, bool allowFuzzy) {
+            if (cmd.Length > 5)
             {
-                var query = cmd.Substring(6);
+                var query = cmd.Substring(5);
                 var matches = (await this.library.Search(query)).ToList();
                 if (matches.Any())
                 {
+                    if (!allowFuzzy && matches.Count() > 1)
+                    {
+                        return "Be more specific. Your search matched the following tracks:\n" +
+                            string.Join("\n", matches.Select(t => t.Name));
+                    }
                     var pick = matches.ElementAt(rnd.Next(0, matches.Count()));
                     if (await this.library.Enqueue(pick.Key))
                     {
@@ -101,6 +107,8 @@ namespace Puffincast.Processing
                 return await Try(control.Play());
             }
         }
+
+        private Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
 
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
@@ -147,6 +155,12 @@ namespace Puffincast.Processing
                 Name = "Pause",
                 Description = "Pause PuffinCast radio",
                 Invoke = (_, __) => Try(control.Pause())
+            },
+            new Command
+            {
+                Name = "Pick",
+                Description = "Enqueue a specific track.",
+                Invoke = Pick
             }
 
         };
