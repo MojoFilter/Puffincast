@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Puffincast.Processing
@@ -51,16 +52,23 @@ namespace Puffincast.Processing
             using (var response = await Get(uri))
                 using (var reader = new StreamReader(response.GetResponseStream()))
             {
-                var doc = XDocument.Parse(PreprocessXhtml(await reader.ReadToEndAsync()));
-                return
-                    from album in doc.Descendants(ns + "table")
-                    where (string)album.Attribute("class") == "album"
-                    let artist = album.Descendants(ns + "a").First().Value
-                    from track in album.Descendants(ns + "tr").Skip(2)
-                    let title = track.Elements(ns + "td").First(t => (string)t.Attribute("class") == "track_name").Value
-                    let name = $"{artist} - {title}"
-                    let key = FormatKey(artist, title)
-                    select new Track(name, key);
+                try
+                {
+                    var doc = XDocument.Parse(PreprocessXhtml(await reader.ReadToEndAsync()));
+                    return
+                        from album in doc.Descendants(ns + "table")
+                        where (string)album.Attribute("class") == "album"
+                        let artist = album.Descendants(ns + "a").First().Value
+                        from track in album.Descendants(ns + "tr").Skip(2)
+                        let title = track.Elements(ns + "td").First(t => (string)t.Attribute("class") == "track_name").Value
+                        let name = $"{artist} - {title}"
+                        let key = FormatKey(artist, title)
+                        select new Track(name, key);
+                }
+                catch (XmlException)
+                {
+                    return Enumerable.Empty<Track>();
+                }
             }
         }
 
