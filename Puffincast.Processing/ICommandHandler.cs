@@ -175,12 +175,6 @@ namespace Puffincast.Processing
                 Name = "Pick",
                 Description = "Enqueue a specific track",
                 Invoke = Pick
-            },
-            new Command
-            {
-                Name = "Clear",
-                Description = "Clear the playlist",
-                Invoke = (_, __) => Try(control.Clear())
             }
 
         };
