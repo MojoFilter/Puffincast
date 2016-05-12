@@ -58,7 +58,7 @@ namespace Puffincast.Processing
                 try
                 {
                     var doc = XDocument.Parse(PreprocessXhtml(await reader.ReadToEndAsync()));
-                    return
+                    var list =
                         from album in doc.Descendants(ns + "table")
                         where (string)album.Attribute("class") == "album"
                         let artist = album.Descendants(ns + "a").First().Value
@@ -67,9 +67,12 @@ namespace Puffincast.Processing
                         let name = $"{artist} - {title}"
                         let key = FormatKey(artist, title)
                         select new Track(name, key);
+
+                    return list;
                 }
-                catch (XmlException)
+                catch (XmlException ex)
                 {
+                    var what = ex;
                     return Enumerable.Empty<Track>();
                 }
             }

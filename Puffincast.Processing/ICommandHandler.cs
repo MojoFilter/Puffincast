@@ -124,6 +124,7 @@ namespace Puffincast.Processing
 
         private Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
 
+
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
         private IEnumerable<Command> InitCommands() => new[]
@@ -175,8 +176,13 @@ namespace Puffincast.Processing
                 Name = "Pick",
                 Description = "Enqueue a specific track",
                 Invoke = Pick
+            },
+            new Command
+            {
+                Name = "Clear",
+                Description = "Clears the queue.  These things exist because",
+                Invoke = (_, __) => Try(control.Clear())
             }
-
         };
 
         class Command
