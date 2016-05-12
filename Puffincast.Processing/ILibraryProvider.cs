@@ -96,6 +96,7 @@ namespace Puffincast.Processing
             var docType = @"<!DOCTYPE .*>";
             var newDocType = @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"" [
    <!ENTITY euml ""&#235;"">
+   <!ENTITY eacute ""&#233;"">
    <!ENTITY nbsp ""&#160;"">
 ]>";
             return Regex.Replace(xhtml, docType, newDocType);
