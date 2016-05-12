@@ -124,15 +124,6 @@ namespace Puffincast.Processing
 
         private Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
 
-        private async Task<string> Clear(string user, string cmd)
-        {
-            int count = Convert.ToInt32(cmd.Split('?')[1]);
-
-            for (var x= 0; x < count; x++)
-               await Try(control.Next());
-            
-            return $"{count} tracks skipped.";
-        }
 
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
@@ -190,7 +181,7 @@ namespace Puffincast.Processing
             {
                 Name = "Clear",
                 Description = "Clears the queue.  These things exist because",
-                Invoke = Clear 
+                Invoke = (_, __) => Try(control.Clear())
             }
         };
 

@@ -17,6 +17,7 @@ namespace Puffincast.Processing
         Task<bool> Play();
         Task<bool> Pause();
         Task<bool> Prev();
+        Task<bool> Clear();
     }
 
     public class Playlist
@@ -83,6 +84,8 @@ namespace Puffincast.Processing
         public Task<bool> Pause() => Try("pause");
 
         public Task<bool> Prev() => Try("prev");
+
+        public Task<bool> Clear() => Try("delete");
 
         class ConnectionInfo
         {
