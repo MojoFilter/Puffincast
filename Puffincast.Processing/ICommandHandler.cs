@@ -126,14 +126,12 @@ namespace Puffincast.Processing
 
         private async Task<string> Clear(string user, string cmd)
         {
-            var tracks = await library.Search();
+            int count = Convert.ToInt32(cmd.Split('?')[1]);
 
-            foreach (var track in tracks)
-            {
+            for (var x= 0; x < count; x++)
                await Try(control.Next());
-            }
-
-            return "The queue should be clear.";
+            
+            return $"{count} tracks skipped.";
         }
 
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";

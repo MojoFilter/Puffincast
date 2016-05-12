@@ -13,7 +13,6 @@ namespace Puffincast.Processing
 {
     public interface ILibraryProvider
     {
-        Task<IEnumerable<Track>> Search();
         Task<IEnumerable<Track>> Search(string yolo);
         Task<IEnumerable<Track>> Search(object fields);
         Task<bool> Enqueue(string key);
@@ -47,9 +46,6 @@ namespace Puffincast.Processing
             return (await Get(uri)).StatusCode == HttpStatusCode.OK;
         }
 
-        public Task<IEnumerable<Track>> Search() => 
-            Query("");
-
         public Task<IEnumerable<Track>> Search(string yolo) =>
             Query(string.Format(YoloTemplate, yolo));
 
@@ -74,8 +70,9 @@ namespace Puffincast.Processing
 
                     return list;
                 }
-                catch (XmlException)
+                catch (XmlException ex)
                 {
+                    var what = ex;
                     return Enumerable.Empty<Track>();
                 }
             }
