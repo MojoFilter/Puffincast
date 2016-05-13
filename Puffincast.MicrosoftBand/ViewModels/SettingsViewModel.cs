@@ -8,7 +8,7 @@ using Windows.Storage;
 
 namespace Puffincast.Universal.ViewModels
 {
-    class SettingsViewModel : INotifyPropertyChanged
+    public class SettingsViewModel : INotifyPropertyChanged
     {
         private string httpQUri;
 
