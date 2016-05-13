@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast", "Puffincast\Pu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.Processing", "Puffincast.Processing\Puffincast.Processing.csproj", "{A2A5A6CF-5F5D-4A29-A8D2-C672A3719CDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.MicrosoftBand", "Puffincast.MicrosoftBand\Puffincast.MicrosoftBand.csproj", "{2FF233F4-E7C5-44A6-9ABD-E45CAFA2D6BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.Universal", "Puffincast.MicrosoftBand\Puffincast.Universal.csproj", "{2FF233F4-E7C5-44A6-9ABD-E45CAFA2D6BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.PortableProcessing", "Puffincast.PortableProcessing\Puffincast.PortableProcessing.csproj", "{840A7EB4-3685-4C09-B15D-BA2259321313}"
 EndProject

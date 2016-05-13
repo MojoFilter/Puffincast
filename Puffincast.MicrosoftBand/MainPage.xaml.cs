@@ -1,32 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
+using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.Band;
 using Microsoft.Band.Tiles;
 using Microsoft.Band.Tiles.Pages;
-using Microsoft.Band.Personalization;
-using Windows.UI.Xaml.Media.Imaging;
-using System.Threading.Tasks;
-using Puffincast.Processing;
-using Windows.Storage;
 
-namespace Puffincast.MicrosoftBand
+using Puffincast.Processing;
+
+namespace Puffincast.Universal
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private HttpQWinampControl control { get; set; }
@@ -153,14 +139,9 @@ namespace Puffincast.MicrosoftBand
             await control.Next();
         }
 
-        private async void Setting_Click(object sender, RoutedEventArgs e)
+        private void Setting_Click(object sender, RoutedEventArgs e)
         {
-
-            this.Frame.Navigate(typeof(Settings));
-            // show other form.
-            ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
-            AppSettings.Values["puffincastUri"] = "";
-
+            this.Frame.Navigate(typeof(Puffincast.Universal.Settings));
         }
     }
 }

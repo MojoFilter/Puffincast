@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Puffincast.MicrosoftBand
+namespace Puffincast.Universal
 {
     public class SettingsProvider : ISettingsProvider
     {

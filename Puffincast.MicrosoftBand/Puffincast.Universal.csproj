@@ -7,8 +7,8 @@
     <ProjectGuid>{2FF233F4-E7C5-44A6-9ABD-E45CAFA2D6BF}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Puffincast.MicrosoftBand</RootNamespace>
-    <AssemblyName>Puffincast.MicrosoftBand</AssemblyName>
+    <RootNamespace>Puffincast.Universal</RootNamespace>
+    <AssemblyName>Puffincast.Universal</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
@@ -102,6 +102,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileLayoutIndex.cs" />
     <Compile Include="TileMessagesLayoutElementId.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="Settings.xaml.cs">
+      <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

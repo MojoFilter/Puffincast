@@ -1,8 +1,8 @@
 ﻿<Application
-    x:Class="Puffincast.MicrosoftBand.App"
+    x:Class="Puffincast.Universal.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Puffincast.MicrosoftBand"
+    xmlns:local="using:Puffincast.Universal"
     RequestedTheme="Light">
 
     <Application.Resources>
