@@ -5,4 +5,13 @@
     xmlns:local="using:Puffincast.MicrosoftBand"
     RequestedTheme="Light">
 
+    <Application.Resources>
+        <Style TargetType="Page">
+            <Setter Property="Background" Value="#111111"/>
+        </Style>
+        <Style TargetType="RelativePanel">
+            <Setter Property="Background" Value="#111111"/>
+        </Style>
+    </Application.Resources>
 </Application>
+    

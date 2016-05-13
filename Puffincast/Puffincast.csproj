@@ -316,9 +316,9 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Puffincast.Processing\Puffincast.Processing.csproj">
-      <Project>{a2a5a6cf-5f5d-4a29-a8d2-c672a3719cde}</Project>
-      <Name>Puffincast.Processing</Name>
+    <ProjectReference Include="..\Puffincast.PortableProcessing\Puffincast.PortableProcessing.csproj">
+      <Project>{840a7eb4-3685-4c09-b15d-ba2259321313}</Project>
+      <Name>Puffincast.PortableProcessing</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

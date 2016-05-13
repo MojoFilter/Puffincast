@@ -19,8 +19,8 @@ using Microsoft.Band.Tiles.Pages;
 using Microsoft.Band.Personalization;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Threading.Tasks;
-
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+using Puffincast.Processing;
+using Windows.Storage;
 
 namespace Puffincast.MicrosoftBand
 {
@@ -29,12 +29,17 @@ namespace Puffincast.MicrosoftBand
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private HttpQWinampControl control { get; set; }
+
         public MainPage()
         {
             this.InitializeComponent();
 
+            ISettingsProvider settings = new SettingsProvider();
+            control = new HttpQWinampControl(settings);
         }
-        public async void Stuff()
+
+        public async void ConnectAndSetupBand()
         {
             try
             {
@@ -43,26 +48,13 @@ namespace Puffincast.MicrosoftBand
 
                 using (IBandClient bandClient = await BandClientManager.Instance.ConnectAsync(band))
                 {
-
                     await AddTileIfMissing(bandClient);
-
-
                 }
             }
             catch (BandException ex)
             {
                 var y = ex;
             }
-        }
-        internal enum TileLayoutIndex : int
-        {
-            MessagesLayout = 0
-        }
-
-        internal enum TileMessagesLayoutElementId : short
-        {
-            Message1 = 1,
-            Message2 = 2
         }
 
         public async Task AddTileIfMissing(IBandClient bandClient)
@@ -95,7 +87,43 @@ namespace Puffincast.MicrosoftBand
                         TileIcon = tileIcon
                     };
 
-                    await AddPanelToTile(bandClient, tile);
+                    var panel = new ScrollFlowPanel
+                    {
+                        Rect = new PageRect(0, 0, 258, 128),
+                        Orientation = FlowPanelOrientation.Horizontal,
+                        ScrollBarColorSource = ElementColorSource.BandBase,
+                    };
+
+                    var textBlock = new Microsoft.Band.Tiles.Pages.TextBlock
+                    {
+                        ElementId = (short)TileMessagesLayoutElementId.Message1,
+                        Rect = new PageRect(0, 0, 258, 128),
+                        Margins = new Margins(15, 0, 15, 0),
+                        Color = new BandColor(0xFF, 0xFF, 0xFF)
+                    };
+                    var textBlockData = new TextBlockData((int)TileMessagesLayoutElementId.Message1, "This is a test message");
+
+                    var textButton = new TextButton()
+                    {
+                        ElementId = 4,
+                        HorizontalAlignment = Microsoft.Band.Tiles.Pages.HorizontalAlignment.Center,
+                        Rect = new PageRect(0, 0, 100, 50),
+                        VerticalAlignment = Microsoft.Band.Tiles.Pages.VerticalAlignment.Center,
+                    };
+
+                    var textButtonData = new TextButtonData(4, "Play");
+
+                    panel.Elements.Add(textBlock);
+                    panel.Elements.Add(textButton);
+
+                    var layout = new PageLayout(panel);
+                    tile.PageLayouts.Add(layout);
+
+                    await bandClient.TileManager.AddTileAsync(tile);
+
+                    var pageContent = new PageData(Guid.NewGuid(), (int)TileLayoutIndex.MessagesLayout, textBlockData, textButtonData);
+
+                    var pageSet = await bandClient.TileManager.SetPagesAsync(tile.TileId, pageContent);
                 }
             }
             catch (Exception ex)
@@ -105,58 +133,34 @@ namespace Puffincast.MicrosoftBand
             }
         }
 
-        public async Task AddPanelToTile(IBandClient bandClient, BandTile tile)
-        {
-            try
-            {
-                var panel = new ScrollFlowPanel
-                {
-                    Rect = new PageRect(0, 0, 258, 128),
-                    Orientation = FlowPanelOrientation.Horizontal,
-                    ScrollBarColorSource = ElementColorSource.BandBase,
-                };
-
-                var textBlock = new Microsoft.Band.Tiles.Pages.TextBlock
-                {
-                    ElementId = (short)TileMessagesLayoutElementId.Message1,
-                    Rect = new PageRect(0, 0, 258, 128),
-                    Margins = new Margins(15, 0, 15, 0),
-                    Color = new BandColor(0xFF, 0xFF, 0xFF)
-                };
-                var textBlockData = new TextBlockData((int)TileMessagesLayoutElementId.Message1, "This is a test message");
-
-                var textButton = new TextButton()
-                {
-                    ElementId = 4,
-                    HorizontalAlignment = Microsoft.Band.Tiles.Pages.HorizontalAlignment.Center,
-                    Rect = new PageRect(0, 0, 100, 50),
-                    VerticalAlignment = Microsoft.Band.Tiles.Pages.VerticalAlignment.Center,
-                };
-
-                var textButtonData = new TextButtonData(4, "Play");
-
-                panel.Elements.Add(textBlock);
-                panel.Elements.Add(textButton);
-
-                var layout = new PageLayout(panel);
-                tile.PageLayouts.Add(layout);
-
-                await bandClient.TileManager.AddTileAsync(tile);
-
-                var pageContent = new PageData(Guid.NewGuid(), (int)TileLayoutIndex.MessagesLayout, textBlockData, textButtonData);
-
-                var pageSet = await bandClient.TileManager.SetPagesAsync(tile.TileId, pageContent);
-
-            }
-            catch (Exception ex)
-            {
-                var y = ex;
-            }
-        }
-
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            Stuff();
+            ConnectAndSetupBand();
+        }
+
+        private async void Previous_Click(object sender, RoutedEventArgs e)
+        {
+            await control.Prev();
+        }
+
+        private async void Play_Click(object sender, RoutedEventArgs e)
+        {
+            await control.Play();
+        }
+
+        private async void Next_Click(object sender, RoutedEventArgs e)
+        {
+            await control.Next();
+        }
+
+        private async void Setting_Click(object sender, RoutedEventArgs e)
+        {
+
+            this.Frame.Navigate(typeof(Settings));
+            // show other form.
+            ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
+            AppSettings.Values["puffincastUri"] = "";
+
         }
     }
 }
