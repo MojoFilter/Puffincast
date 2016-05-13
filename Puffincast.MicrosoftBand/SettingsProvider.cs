@@ -9,12 +9,11 @@ namespace Puffincast.Universal
 {
     public class SettingsProvider : ISettingsProvider
     {
-        public string ControlConnectionString
+        public string ControlConnectionString { get; }
+
+        public SettingsProvider(string connectionString)
         {
-            get
-            {
-                return "pass @localhost:4800"; //TODO:  Let the user specify this.
-            }
+            ControlConnectionString = connectionString;
         }
     }
 }

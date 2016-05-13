@@ -10,6 +10,7 @@ using Microsoft.Band.Tiles;
 using Microsoft.Band.Tiles.Pages;
 
 using Puffincast.Processing;
+using Windows.Storage;
 
 namespace Puffincast.Universal
 {
@@ -20,9 +21,21 @@ namespace Puffincast.Universal
         public MainPage()
         {
             this.InitializeComponent();
+            Loaded += OnLoad;
+            LoadSettings();
+        }
 
-            ISettingsProvider settings = new SettingsProvider();
+        private void LoadSettings()
+        {
+            ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
+            var connection= AppSettings.Values["puffincastUri"].ToString();
+            ISettingsProvider settings = new SettingsProvider(connection);
             control = new HttpQWinampControl(settings);
+        }
+
+        public void OnLoad(object sender, RoutedEventArgs e)
+        {
+            LoadSettings();
         }
 
         public async void ConnectAndSetupBand()
