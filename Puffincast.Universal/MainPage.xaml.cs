@@ -11,145 +11,45 @@ using Microsoft.Band.Tiles.Pages;
 
 using Puffincast.Processing;
 using Windows.Storage;
+using Puffincast.Universal.ViewModels;
 
 namespace Puffincast.Universal
 {
     public sealed partial class MainPage : Page
     {
-        private HttpQWinampControl control { get; set; }
+        public MainPageViewModel Vm { get; set; }
 
         public MainPage()
         {
             this.InitializeComponent();
+            Vm = new MainPageViewModel();
+            this.DataContext = Vm;
             Loaded += OnLoad;
-            LoadSettings();
         }
 
-        private void LoadSettings()
+        public async void OnLoad(object sender, RoutedEventArgs e)
         {
-            ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
-            var connection= AppSettings.Values["puffincastUri"].ToString();
-            ISettingsProvider settings = new SettingsProvider(connection);
-            control = new HttpQWinampControl(settings);
-        }
-
-        public void OnLoad(object sender, RoutedEventArgs e)
-        {
-            LoadSettings();
-        }
-
-        public async void ConnectAndSetupBand()
-        {
-            try
-            {
-                IBandInfo[] pairedBands = await BandClientManager.Instance.GetBandsAsync();
-                IBandInfo band = pairedBands[0];
-
-                using (IBandClient bandClient = await BandClientManager.Instance.ConnectAsync(band))
-                {
-                    await AddTileIfMissing(bandClient);
-                }
-            }
-            catch (BandException ex)
-            {
-                var y = ex;
-            }
-        }
-
-        public async Task AddTileIfMissing(IBandClient bandClient)
-        {
-            try
-            {
-                IEnumerable<BandTile> tiles = await bandClient.TileManager.GetTilesAsync();
-
-                var tileToRemove =
-                    tiles.Where(p => p.Name == "Puffincast")
-                         .Select(p => bandClient.TileManager.RemoveTileAsync(p))
-                         .ToList();
-
-                int tileCapacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
-
-                if (tileCapacity > 0)
-                {
-                    var smallIconBitmap = new WriteableBitmap(24, 24);
-                    var tileIconBitmap = new WriteableBitmap(46, 46);
-
-                    var smallIcon = smallIconBitmap.ToBandIcon();
-                    var tileIcon = tileIconBitmap.ToBandIcon();
-
-                    var tileGuid = Guid.NewGuid();
-                    var tile = new BandTile(tileGuid)
-                    {
-                        IsBadgingEnabled = true,
-                        Name = "Puffincast",
-                        SmallIcon = smallIcon,
-                        TileIcon = tileIcon
-                    };
-
-                    var panel = new ScrollFlowPanel
-                    {
-                        Rect = new PageRect(0, 0, 258, 128),
-                        Orientation = FlowPanelOrientation.Horizontal,
-                        ScrollBarColorSource = ElementColorSource.BandBase,
-                    };
-
-                    var textBlock = new Microsoft.Band.Tiles.Pages.TextBlock
-                    {
-                        ElementId = (short)TileMessagesLayoutElementId.Message1,
-                        Rect = new PageRect(0, 0, 258, 128),
-                        Margins = new Margins(15, 0, 15, 0),
-                        Color = new BandColor(0xFF, 0xFF, 0xFF)
-                    };
-                    var textBlockData = new TextBlockData((int)TileMessagesLayoutElementId.Message1, "This is a test message");
-
-                    var textButton = new TextButton()
-                    {
-                        ElementId = 4,
-                        HorizontalAlignment = Microsoft.Band.Tiles.Pages.HorizontalAlignment.Center,
-                        Rect = new PageRect(0, 0, 100, 50),
-                        VerticalAlignment = Microsoft.Band.Tiles.Pages.VerticalAlignment.Center,
-                    };
-
-                    var textButtonData = new TextButtonData(4, "Play");
-
-                    panel.Elements.Add(textBlock);
-                    panel.Elements.Add(textButton);
-
-                    var layout = new PageLayout(panel);
-                    tile.PageLayouts.Add(layout);
-
-                    await bandClient.TileManager.AddTileAsync(tile);
-
-                    var pageContent = new PageData(Guid.NewGuid(), (int)TileLayoutIndex.MessagesLayout, textBlockData, textButtonData);
-
-                    var pageSet = await bandClient.TileManager.SetPagesAsync(tile.TileId, pageContent);
-                }
-            }
-            catch (Exception ex)
-            {
-                var y = ex;
-                throw;
-            }
+            await Vm.GetPlaylist();
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            ConnectAndSetupBand();
+           Vm.ConnectAndSetupBand();
         }
 
         private async void Previous_Click(object sender, RoutedEventArgs e)
         {
-            await control.Prev();
+            await Vm.Control.Prev();
         }
 
         private async void Play_Click(object sender, RoutedEventArgs e)
         {
-            await control.Play();
+            await Vm.Control.Play();
         }
 
         private async void Next_Click(object sender, RoutedEventArgs e)
         {
-            await control.Next();
+            await Vm.Control.Next();
         }
 
         private void Setting_Click(object sender, RoutedEventArgs e)

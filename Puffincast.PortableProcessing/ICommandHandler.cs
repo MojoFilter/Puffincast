@@ -126,7 +126,6 @@ namespace Puffincast.Processing
 
         private Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
 
-
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
         private IEnumerable<Command> InitCommands() => new[]

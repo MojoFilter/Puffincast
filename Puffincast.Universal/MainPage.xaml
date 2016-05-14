@@ -5,6 +5,7 @@
     xmlns:local="using:Puffincast.Universal"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Puffincast.Universal.ViewModels"
     mc:Ignorable="d" RequestedTheme="Dark">
     
     <Page.Resources>
@@ -25,24 +26,40 @@
                    Margin="10,10,-350,-75" 
                    FontSize="48"
                    Foreground="YellowGreen"/>
-        
-        
 
-        <TextBlock x:Name="txtNowPlaying"
-                   Text="Now Playing:"
-                   RelativePanel.Below="txtHeader" 
+        <TextBlock x:Name="txtNowPlaying" 
+                   Text="Now Playing:" 
+                   RelativePanel.Below="txtHeader"
                    Margin="10,180,-350,-76"/>
         
+        <TextBlock x:Name="NowPlaying" 
+                   Text="{Binding Playlist.Current, TargetNullValue=...}"
+                   RelativePanel.Below="txtNowPlaying" 
+                   Margin="10,81,-350,23"
+                   Foreground="White"/>
+
         <TextBlock x:Name="txtUpNext" 
                    Text="Up Next:"
-                   RelativePanel.Below="txtNowPlaying" 
-                   Margin="10,81,-350,-81"/>
-        
+                   RelativePanel.Below="NowPlaying" 
+                   Margin="10,27,-350,-27"/>
+
+        <TextBlock x:Name="UpNext" 
+                   Text="{Binding Playlist.Next, TargetNullValue=...}"
+                   RelativePanel.Below="txtUpNext" 
+                   Margin="10,32,-350,72"
+                   Foreground="White"/>
+
         <TextBlock x:Name="txtYouJustHeard" 
                    Text="You Just Heard:"
-                   RelativePanel.Below="txtUpNext" 
-                   Margin="10,86,-350,-86"/>
-        
+                   RelativePanel.Below="UpNext" 
+                   Margin="10,-162,-350,162"/>
+
+        <TextBlock x:Name="YouJustHeard" 
+                   Text="{Binding Playlist.Last, TargetNullValue=...}"
+                   RelativePanel.Below="txtYouJustHeard" 
+                   Margin="10,-157,-350,261"
+                   Foreground="White"/>
+
         <Button x:Name="button" 
                 Content="Refresh Microsoft Band Tile" 
     		    HorizontalAlignment="Stretch" 

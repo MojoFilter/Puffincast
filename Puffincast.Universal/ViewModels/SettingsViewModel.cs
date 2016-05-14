@@ -18,6 +18,7 @@ namespace Puffincast.Universal.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
         public string HttpQUri
         {
             get { return httpQUri; }
@@ -36,9 +37,10 @@ namespace Puffincast.Universal.ViewModels
         public string RetrieveHttpQUri()
         {
             ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
-            HttpQUri = AppSettings.Values["puffincastUri"].ToString();
+            HttpQUri = AppSettings.Values["puffincastUri"]?.ToString();
             return HttpQUri;
         }
+
         public void SaveHttpQUri()
         {
             ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
