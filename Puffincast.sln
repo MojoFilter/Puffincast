@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast", "Puffincast\Puffincast.csproj", "{04DC9A5C-1F99-4D40-8596-69B09EB3E54A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.PortableProcessing", "Puffincast.PortableProcessing\Puffincast.PortableProcessing.csproj", "{840A7EB4-3685-4C09-B15D-BA2259321313}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.Processing", "Puffincast.Processing\Puffincast.Processing.csproj", "{840A7EB4-3685-4C09-B15D-BA2259321313}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puffincast.Universal", "Puffincast.Universal\Puffincast.Universal.csproj", "{2FF233F4-E7C5-44A6-9ABD-E45CAFA2D6BF}"
 EndProject

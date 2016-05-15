@@ -142,7 +142,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Puffincast.PortableProcessing\Puffincast.PortableProcessing.csproj">
+    <ProjectReference Include="..\Puffincast.Processing\Puffincast.Processing.csproj">
       <Project>{840a7eb4-3685-4c09-b15d-ba2259321313}</Project>
       <Name>Puffincast.PortableProcessing</Name>
     </ProjectReference>
