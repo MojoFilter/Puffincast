@@ -24,10 +24,10 @@
         
         <TextBlock x:Name="txtHeader"
                    Text="Puffincast"
-                   Margin="0,10,-350,560" 
                    TextAlignment="Center"
                    FontSize="48"
-                   Foreground="YellowGreen"
+                   FontWeight="Bold"
+                   Foreground="YellowGreen" Margin="10,10,-350,-16"
                    />
 
         <Pivot Margin="10,85,10,-548">
