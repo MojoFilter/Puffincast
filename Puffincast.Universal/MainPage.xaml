@@ -6,13 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Puffincast.Universal.ViewModels"
+    xmlns:v="using:Puffincast.Universal.Views"
     mc:Ignorable="d" RequestedTheme="Dark">
     <Page.Transitions>
         <TransitionCollection>
             <ContentThemeTransition HorizontalOffset="0" VerticalOffset="0"/>
         </TransitionCollection>
     </Page.Transitions>
-    <Page.Resources>
+    <v:MainView>
+        <v:MainView.DataContext>
+            <vm:MainViewModel />
+        </v:MainView.DataContext>
+    </v:MainView>
+    <!--<Page.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -144,5 +150,5 @@
             </CommandBar.SecondaryCommands>
 
         </CommandBar>
-    </Page.BottomAppBar>
+    </Page.BottomAppBar>-->
 </Page>

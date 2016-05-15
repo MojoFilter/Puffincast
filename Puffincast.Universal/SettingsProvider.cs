@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Puffincast.Universal
 {
@@ -11,9 +12,11 @@ namespace Puffincast.Universal
     {
         public string ControlConnectionString { get; }
 
-        public SettingsProvider(string connectionString)
+        public SettingsProvider(string connectionString = null)
         {
-            ControlConnectionString = connectionString;
+            ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;      
+            ControlConnectionString = (connectionString ?? AppSettings.Values["puffincastUri"]?.ToString())
+                ?? "pass@localhost:4800";
         }
     }
 }

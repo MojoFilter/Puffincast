@@ -3,7 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Puffincast.Universal"
-    RequestedTheme="Light">
+    xmlns:vm="using:Puffincast.Universal.ViewModels"
+    xmlns:v="using:Puffincast.Universal.Views"
+    RequestedTheme="Dark">
 
     <Application.Resources>
         <Style TargetType="Page">
@@ -12,6 +14,23 @@
         <Style TargetType="RelativePanel">
             <Setter Property="Background" Value="#111111"/>
         </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiLight" />
+        </Style>
+
+        <Style x:Key="AppHeading" TargetType="TextBlock">
+            <Setter Property="Text" Value="Puffincast" />
+            <Setter Property="FontSize" Value="48" />
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="YellowGreen" />
+        </Style>
+
+        <v:DefaultDataTemplateSelector x:Key="DefaultTemplates" />
+        
+        <DataTemplate x:Key="NowPlayingTemplate">
+            <v:NowPlayingView />
+        </DataTemplate>
     </Application.Resources>
 </Application>
     
