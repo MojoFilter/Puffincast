@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,20 +15,8 @@ namespace Puffincast.Processing
     public interface ILibraryProvider
     {
         Task<IEnumerable<Track>> Search(string yolo);
-        Task<IEnumerable<Track>> Search(object fields);
+        Task<IEnumerable<Track>> Search(IEnumerable<KeyValuePair<string, string>> fields);
         Task<bool> Enqueue(string key);
-    }
-
-    public struct Track
-    {
-        public string Name { get; }
-        public string Key { get; }
-
-        public Track(string name, string key)
-        {
-            this.Name = name;
-            this.Key = key;
-        }
     }
 
     public class MlwwwLibraryProvider : ILibraryProvider
@@ -78,12 +67,11 @@ namespace Puffincast.Processing
             }
         }
 
-        public Task<IEnumerable<Track>> Search(object fields)
+        public Task<IEnumerable<Track>> Search(IEnumerable<KeyValuePair<string, string>> fields)
         {
             var parameters = string.Join("+and+",
-                fields.GetType()
-                .GetProperties()
-                .Select(p => $"{p.Name.ToUpper()}+LIKE+\"{p.GetValue(fields)}\""));
+                fields
+                .Select(p => $"{p.Key.ToUpper()}+LIKE+\"{p.Value}\""));
             var uri = "right.html?query=%3F" + parameters;
             return Query(uri);
         }

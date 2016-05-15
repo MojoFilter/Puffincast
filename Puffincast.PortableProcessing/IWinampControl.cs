@@ -12,19 +12,14 @@ namespace Puffincast.Processing
     public interface IWinampControl
     {
         Task<Playlist> GetPlaylist();
+        Task<string[]> GetPreviousPlaylist();
+        Task<int> GetCurrentPlaylistPosition();
         Task<string> GetNowPlaying();
         Task<bool> Next();
         Task<bool> Play();
         Task<bool> Pause();
         Task<bool> Prev();
         Task<bool> Clear();
-    }
-
-    public class Playlist
-    {
-        public string Last { get; set; }
-        public string Current { get; set; }
-        public IEnumerable<string> Next { get; set; }
     }
 
     public class HttpQWinampControl : IWinampControl
@@ -40,10 +35,15 @@ namespace Puffincast.Processing
 
         public async Task<Playlist> GetPlaylist()
         {
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("delim", Delimiter.ToString())
+            };
+
             var fullList =
-            (await this.Request("getplaylisttitlelist", new { delim = Delimiter}))
+            (await this.Request("getplaylisttitlelist", parameters))
             .Split(Delimiter);
-            var pos = Convert.ToInt32(await this.Request("getlistpos"));
+            var pos = await GetCurrentPlaylistPosition();
             return new Playlist
             {
                 Last = (pos == 0) ? null : fullList[pos - 1],
@@ -52,29 +52,48 @@ namespace Puffincast.Processing
             };
         }
 
-        public Task<string> GetNowPlaying() => this.Request("getcurrenttitle");
-        
+        public async Task<string[]> GetPreviousPlaylist()
+        {
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("delim", Delimiter.ToString())
+            };
 
-        private async Task<string> Request(string command, object parameters = null)
+            var fullList =
+            (await this.Request("getplaylisttitlelist", parameters))
+            .Split(Delimiter);
+
+            return fullList;
+        }
+
+        public async Task<int> GetCurrentPlaylistPosition()
+        {
+            var pos = Convert.ToInt32(await this.Request("getlistpos"));
+            return pos;
+        }
+
+        public Task<string> GetNowPlaying() => this.Request("getcurrenttitle");
+
+        private async Task<string> Request(string command, IEnumerable<KeyValuePair<string, string>> parameters = null)
         {
             Func<string, string> encode = WebUtility.UrlEncode;
             var cfg = new ConnectionInfo(this.settings.ControlConnectionString);
+
             var uriParams = parameters == null ? string.Empty :
                 string.Join(string.Empty,
-                    parameters.GetType().GetProperties()
-                    .Select(p => $"&{encode(p.Name)}={encode(p.GetValue(parameters).ToString())}"));
-            
+                    parameters
+                    .Select(p => $"&{encode(p.Key)}={encode(p.Value)}"));
+
             var uri = $"{cfg.BaseUri}/{command}?p={encode(cfg.Password)}{uriParams}";
-                
+
             using (var response = (HttpWebResponse)(await WebRequest.CreateHttp(uri).GetResponseAsync()))
             using (var reader = new StreamReader(response.GetResponseStream()))
             {
                 return await reader.ReadToEndAsync();
             }
-            
         }
 
-        private async Task<bool> Try(string command, object parameters = null) =>
+        private async Task<bool> Try(string command, IEnumerable<KeyValuePair<string, string>> parameters = null) =>
             await this.Request(command, parameters) == "1";
 
         public Task<bool> Next() => Try("next");
@@ -86,23 +105,5 @@ namespace Puffincast.Processing
         public Task<bool> Prev() => Try("prev");
 
         public Task<bool> Clear() => Try("delete");
-
-        class ConnectionInfo
-        {
-            public string BaseUri { get; }
-            public string Password { get; }
-
-            public ConnectionInfo(string connectionString)
-            {
-                var match = Regex.Match(connectionString, "(?<pass>.*)@(?<host>.*)");
-                if (!match.Success)
-                {
-                    throw new ArgumentException("Connection string should be in the format pass@host:port");
-                }
-                this.Password = match.Groups["pass"].Value;
-                this.BaseUri = "http://" + match.Groups["host"].Value;
-            }
-            
-        }
     }
 }

@@ -26,7 +26,8 @@ namespace Puffincast.Processing
             var body = JsonConvert.SerializeObject(payload);
             var content = Encoding.UTF8.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = content.Length;
+            
+            //request.ContentLength = content.Length;
             using (var stream = await request.GetRequestStreamAsync())
             {
                 await stream.WriteAsync(content, 0, content.Length);
