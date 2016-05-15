@@ -32,29 +32,44 @@ namespace Puffincast.Universal
             await Vm.GetPlaylist();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-           Vm.ConnectAndSetupBand();
-        }
-
         private async void Previous_Click(object sender, RoutedEventArgs e)
         {
-            await Vm.Control.Prev();
+            await Vm.CommandHandler.Control.Prev();
         }
 
         private async void Play_Click(object sender, RoutedEventArgs e)
         {
-            await Vm.Control.Play();
+            await Vm.CommandHandler.Control.Play();
         }
 
         private async void Next_Click(object sender, RoutedEventArgs e)
         {
-            await Vm.Control.Next();
+            await Vm.CommandHandler.Control.Next();
         }
 
         private void Setting_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(Puffincast.Universal.Settings));
+        }
+
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            await Vm.GetPlaylist();
+        }
+
+        private async void Pause_Click(object sender, RoutedEventArgs e)
+        {
+            await Vm.CommandHandler.Control.Pause();
+        }
+
+        private async void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            await Vm.CommandHandler.Control.Clear();
+        }
+
+        private async void Queue_Click(object sender, RoutedEventArgs e)
+        {
+            await Vm.CommandHandler.Pick(artist.Text, song.Text);
         }
     }
 }

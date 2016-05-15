@@ -7,7 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     
     mc:Ignorable="d">
-
+    <Page.Transitions>
+        <TransitionCollection>
+            <ContentThemeTransition HorizontalOffset="0" VerticalOffset="0"/>
+        </TransitionCollection>
+    </Page.Transitions>
     <Page.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="gray"/>
@@ -28,7 +32,6 @@
     </Page.BottomAppBar>
 
     <RelativePanel>
-
         <TextBlock x:Name="txtHeader"
                    Text="Puffincast"
                    Margin="10,10,-350,-75" 
@@ -43,6 +46,17 @@
                    HorizontalAlignment="center" 
                    Width="340"/>
         
+        <Button x:Name="button" 
+                Content="Refresh Microsoft Band Tile" 
+    		    HorizontalAlignment="Stretch" 
+    		    VerticalAlignment="Top"
+    		    Background="YellowGreen"
+    		    Click="button_Click" 
+                Foreground="White" 
+                FontWeight="Bold"
+                Height="47" 
+                Margin="10,123,-350,-113" />
+        
         <TextBlock x:Name="lblHttpQUri" 
                    TextAlignment="Left" 
                    Height="20" 
@@ -50,16 +64,14 @@
                    Text="Puffincast HttpQ Uri" 
                    VerticalAlignment="Top"
                    Width="340" 
-                   Margin="10,175,-281.667,-175"/>
-        
-        <TextBox 
-                 HorizontalAlignment="Left" 
+                   Margin="10,193,-281.667,-193"/>
+
+        <TextBox HorizontalAlignment="Left" 
                  Height="32" 
                  TextWrapping="Wrap" 
                  VerticalAlignment="Top" 
                  Width="340" 
-                 Margin="10,200,-279,-200"
+                 Margin="10,218,-279,-218"
                  Text="{Binding HttpQUri, Mode=TwoWay}"/>
-        
     </RelativePanel>
 </Page>

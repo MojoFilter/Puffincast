@@ -7,81 +7,119 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Puffincast.Universal.ViewModels"
     mc:Ignorable="d" RequestedTheme="Dark">
-    
+    <Page.Transitions>
+        <TransitionCollection>
+            <ContentThemeTransition HorizontalOffset="0" VerticalOffset="0"/>
+        </TransitionCollection>
+    </Page.Transitions>
     <Page.Resources>
         <Style TargetType="TextBlock">
- 
+
             <Setter Property="Foreground" Value="gray"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
+
         </Style>
     </Page.Resources>
 
-
-    <RelativePanel>
-
+    <RelativePanel Width="Auto" HorizontalAlignment="Stretch" >
         <TextBlock x:Name="txtHeader"
                    Text="Puffincast"
-                   Margin="10,10,-350,-75" 
+                   Margin="0,0,-360,-32" 
+                   TextAlignment="Center"
                    FontSize="48"
-                   Foreground="YellowGreen"/>
+                   Foreground="YellowGreen"
+                   Height="Auto"
+                   
+                   />
 
-        <TextBlock x:Name="txtNowPlaying" 
-                   Text="Now Playing:" 
-                   RelativePanel.Below="txtHeader"
-                   Margin="10,180,-350,-76"/>
-        
-        <TextBlock x:Name="NowPlaying" 
-                   Text="{Binding Playlist.Current, TargetNullValue=...}"
-                   RelativePanel.Below="txtNowPlaying" 
-                   Margin="10,81,-350,23"
-                   Foreground="White"/>
+        <Pivot Margin="10,85,10,-548">
+            <PivotItem Header="Now Playing" Margin="0,10,0,2">
+                <Grid>
+                    <TextBlock x:Name="txtNowPlaying" 
+                                Text="Now Playing:"
+                                FontSize="18"
+                                FontWeight="Bold"
+                                RelativePanel.Below="txtHeader"
+                                Margin="10,30,10,439"/>
 
-        <TextBlock x:Name="txtUpNext" 
-                   Text="Up Next:"
-                   RelativePanel.Below="NowPlaying" 
-                   Margin="10,27,-350,-27"/>
+                    <TextBlock x:Name="NowPlaying" 
+                                Text="{Binding Playlist.Current, TargetNullValue=...}"
+                                RelativePanel.Below="txtNowPlaying" 
+                                Margin="10,58,10,409"
+                                Foreground="White"/>
 
-        <TextBlock x:Name="UpNext" 
-                   Text="{Binding Playlist.Next, TargetNullValue=...}"
-                   RelativePanel.Below="txtUpNext" 
-                   Margin="10,32,-350,72"
-                   Foreground="White"/>
+                    <TextBlock x:Name="txtYouJustHeard" 
+                                Text="You Just Heard:"
+                                FontSize="18"
+                                FontWeight="Bold"
+                                RelativePanel.Below="NowPlaying" 
+                                Margin="10,110,10,363"/>
 
-        <TextBlock x:Name="txtYouJustHeard" 
-                   Text="You Just Heard:"
-                   RelativePanel.Below="UpNext" 
-                   Margin="10,-162,-350,162"/>
+                    <TextBlock x:Name="YouJustHeard" 
+                                Text="{Binding Playlist.Last, TargetNullValue=...}"
+                                RelativePanel.Below="txtYouJustHeard" 
+                                Margin="10,139,10,331"
+                                Foreground="White" RenderTransformOrigin="0.5,0.5"/>
 
-        <TextBlock x:Name="YouJustHeard" 
-                   Text="{Binding Playlist.Last, TargetNullValue=...}"
-                   RelativePanel.Below="txtYouJustHeard" 
-                   Margin="10,-157,-350,261"
-                   Foreground="White"/>
+                    <TextBlock x:Name="txtUpNext" 
+                                Text="Up Next:"
+                                FontSize="18"
+                                FontWeight="Bold"
+                                RelativePanel.Below="NowPlaying" 
+                                Margin="10,188,10,281"/>
 
-        <Button x:Name="button" 
-                Content="Refresh Microsoft Band Tile" 
-    		    HorizontalAlignment="Stretch" 
-    		    VerticalAlignment="Top"
-    		    Background="YellowGreen"
-    		    Click="button_Click" 
-                Foreground="White" 
-                FontWeight="Bold"
-                Height="47" 
-                Margin="10,80,-350,-70" />
-        
+                    <ListView x:Name="lvUpNext" 
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Top" 
+                                Width="330"
+                                Height="211"
+                                RelativePanel.Below="txtUpNext" 
+                                ItemsSource="{Binding Playlist.Next}" Margin="0,221,0,0">
 
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding}"
+                                   TextAlignment="Center"
+                                   HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Queue">
+                <StackPanel>
+                    <TextBlock Text="Artist:"/>
+                    <TextBox Name="artist"/>
+                    <TextBlock>Song:</TextBlock>
+                    <TextBox Name="song"/>
+                    <TextBlock></TextBlock>
+                    <Button Content="Add to Queue"
+                    	HorizontalAlignment="Stretch" Click="Button_Click"/>
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
     </RelativePanel>
+
     <Page.BottomAppBar>
         <CommandBar>
             <CommandBar.Content>
                 <Grid/>
             </CommandBar.Content>
-            <AppBarButton Icon="Previous" Label="Previous" Click="Previous_Click"/>
-            <AppBarButton Icon="Play" Label="Play" Click="Play_Click"/>
-            <AppBarButton Icon="Next" Label="Next" Click="Next_Click"/>
-            <AppBarButton Icon="Setting" Label="Next" Click="Setting_Click"/>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Previous" Label="Previous" Click="Previous_Click"/>
+                <AppBarButton Icon="Play" Label="Play" Click="Play_Click"/>
+                <AppBarButton Icon="Pause" Label="Pause" Click="Pause_Click"/>
+                <AppBarButton Icon="Next" Label="Next" Click="Next_Click"/>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
+                <AppBarButton Icon="Setting" Label="Settings" Click="Setting_Click"/>
+                <AppBarButton Icon="Clear" Label="Clear Queue" Click="Clear_Click" />
+            </CommandBar.SecondaryCommands>
+
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

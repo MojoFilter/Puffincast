@@ -15,12 +15,13 @@ namespace Puffincast.Processing
 
     public class CommandHandler : ICommandHandler
     {
-        private IWinampControl control;
         private ISettingsProvider settings;
         private ILibraryProvider library;
         private IPuffinBot puffinBot;
 
         private IEnumerable<Command> commands;
+
+        public IWinampControl Control { get; set; }
 
         public CommandHandler(ISettingsProvider settings, IWinampControl control = null, 
             ILibraryProvider library = null, IPuffinBot puffinBot = null)
@@ -28,7 +29,7 @@ namespace Puffincast.Processing
             Contract.Requires(settings != null);
 
             this.settings = settings;
-            this.control = control ?? new HttpQWinampControl(this.settings);
+            this.Control = control ?? new HttpQWinampControl(this.settings);
             this.library = library ?? new MlwwwLibraryProvider();
             this.puffinBot = puffinBot ?? new PuffinBot();
 
@@ -47,35 +48,10 @@ namespace Puffincast.Processing
             return await cmd.Invoke(user, command);
         }
 
-        private Task<string> Help(string user, string cmd) =>
-            Task.FromResult("Here are the commands:\n" +
-                string.Join(Environment.NewLine,
-                    this.commands.OrderBy(c=>c.Name)
-                    .Select((c, i) =>
-                    $"*{c.Name.PadRight(15)}* {c.Description}")));
+        public Task<string> Play(string user, string cmd) => this.Play(user, cmd, true);
 
-        private async Task<string> List(string user, string cmd)
+        public async Task<string> Play(string user, string cmd, bool allowFuzzy)
         {
-            var playlist = await this.control.GetPlaylist();
-            var result = new StringBuilder();
-            result.AppendFormat("You're hearing:\n\t*{0}*\n\n", playlist.Current);
-            if (playlist.Last != null)
-            {
-                result.AppendFormat("You just heard:\n\t*{0}*\n\n", playlist.Last);
-            }
-            result.AppendLine("Coming Up:");
-            result.Append(string.Join(Environment.NewLine, playlist.Next.Select((t, i) => $"{i + 1}) {t}")));
-            return result.ToString();
-        }
-
-        private Task<string> Status(string user, string cmd) =>
-            this.control.GetNowPlaying();
-
-        private Random rnd = new Random();
-
-        private Task<string> Play(string user, string cmd) => this.Play(user, cmd, true);
-
-        private async Task<string> Play(string user, string cmd, bool allowFuzzy) {
             if (cmd.Length > 5)
             {
                 var query = cmd.Substring(5);
@@ -120,11 +96,39 @@ namespace Puffincast.Processing
             }
             else
             {
-                return await Try(control.Play());
+                return await Try(Control.Play());
             }
         }
 
-        private Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
+        public Task<string> Pick(string user, string cmd) => this.Play(user, cmd, false);
+
+        private Task<string> Help(string user, string cmd) =>
+            Task.FromResult("Here are the commands:\n" +
+                string.Join(Environment.NewLine,
+                    this.commands.OrderBy(c=>c.Name)
+                    .Select((c, i) =>
+                    $"*{c.Name.PadRight(15)}* {c.Description}")));
+
+        private async Task<string> List(string user, string cmd)
+        {
+            var playlist = await this.Control.GetPlaylist();
+            var result = new StringBuilder();
+            result.AppendFormat("You're hearing:\n\t*{0}*\n\n", playlist.Current);
+            if (playlist.Last != null)
+            {
+                result.AppendFormat("You just heard:\n\t*{0}*\n\n", playlist.Last);
+            }
+            result.AppendLine("Coming Up:");
+            result.Append(string.Join(Environment.NewLine, playlist.Next.Select((t, i) => $"{i + 1}) {t}")));
+            return result.ToString();
+        }
+
+        private Task<string> Status(string user, string cmd) =>
+            this.Control.GetNowPlaying();
+
+        private Random rnd = new Random();
+
+
 
         private async Task<string> Try(Task<bool> cmd) => await cmd ? ":+1:" : ":skull:";
 
@@ -146,19 +150,19 @@ namespace Puffincast.Processing
             {
                 Name = "?",
                 Description = "Get the current track",
-                Invoke = (_, __) => this.control.GetNowPlaying()
+                Invoke = (_, __) => this.Control.GetNowPlaying()
             },
             new Command
             {
                 Name = "Next",
                 Description = "Skip to the next track",
-                Invoke = (_, __) => Try(control.Next())
+                Invoke = (_, __) => Try(Control.Next())
             },
             new Command
             {
                 Name = "Prev",
                 Description = "You know what this does",
-                Invoke = (_, __) => Try(control.Prev())
+                Invoke = (_, __) => Try(Control.Prev())
             },
             new Command
             {
@@ -170,7 +174,7 @@ namespace Puffincast.Processing
             {
                 Name = "Pause",
                 Description = "Pause PuffinCast radio",
-                Invoke = (_, __) => Try(control.Pause())
+                Invoke = (_, __) => Try(Control.Pause())
             },
             new Command
             {
@@ -182,15 +186,8 @@ namespace Puffincast.Processing
             {
                 Name = "Clear",
                 Description = "Clears the queue.  These things exist because",
-                Invoke = (_, __) => Try(control.Clear())
+                Invoke = (_, __) => Try(Control.Clear())
             }
         };
-
-        class Command
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public Func<string, string, Task<string>> Invoke { get; set; }
-        }
     }
 }
