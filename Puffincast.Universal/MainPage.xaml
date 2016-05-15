@@ -14,32 +14,29 @@
     </Page.Transitions>
     <Page.Resources>
         <Style TargetType="TextBlock">
-
-            <Setter Property="Foreground" Value="gray"/>
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
-
         </Style>
     </Page.Resources>
 
-    <RelativePanel Width="Auto" HorizontalAlignment="Stretch" >
+    <RelativePanel Width="Auto" 
+          HorizontalAlignment="Stretch" >
+        
         <TextBlock x:Name="txtHeader"
                    Text="Puffincast"
-                   Margin="0,0,-360,-32" 
+                   Margin="0,10,-350,560" 
                    TextAlignment="Center"
                    FontSize="48"
                    Foreground="YellowGreen"
-                   Height="Auto"
-                   
                    />
 
         <Pivot Margin="10,85,10,-548">
             <PivotItem Header="Now Playing" Margin="0,10,0,2">
                 <Grid>
                     <TextBlock x:Name="txtNowPlaying" 
-                                Text="Now Playing:"
+                                Text="Now playing"
                                 FontSize="18"
-                                FontWeight="Bold"
+                                FontWeight="SemiLight"
                                 RelativePanel.Below="txtHeader"
                                 Margin="10,30,10,439"/>
 
@@ -47,12 +44,12 @@
                                 Text="{Binding Playlist.Current, TargetNullValue=...}"
                                 RelativePanel.Below="txtNowPlaying" 
                                 Margin="10,58,10,409"
-                                Foreground="White"/>
+                                Foreground="White" FontWeight="Light"/>
 
                     <TextBlock x:Name="txtYouJustHeard" 
-                                Text="You Just Heard:"
+                                Text="You just heard"
                                 FontSize="18"
-                                FontWeight="Bold"
+                                FontWeight="SemiLight"
                                 RelativePanel.Below="NowPlaying" 
                                 Margin="10,110,10,363"/>
 
@@ -60,12 +57,13 @@
                                 Text="{Binding Playlist.Last, TargetNullValue=...}"
                                 RelativePanel.Below="txtYouJustHeard" 
                                 Margin="10,139,10,331"
-                                Foreground="White" RenderTransformOrigin="0.5,0.5"/>
+                                Foreground="White" RenderTransformOrigin="0.5,0.5"
+                               FontWeight="Light"/>
 
                     <TextBlock x:Name="txtUpNext" 
-                                Text="Up Next:"
+                                Text="Coming up next"
                                 FontSize="18"
-                                FontWeight="Bold"
+                                FontWeight="SemiLight"
                                 RelativePanel.Below="NowPlaying" 
                                 Margin="10,188,10,281"/>
 
@@ -82,7 +80,31 @@
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Text="{Binding}"
                                    TextAlignment="Center"
+                                               FontWeight="Light"
                                    HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Playlist">
+                <Grid>
+                    <ListView x:Name="lvPrevious" 
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Top" 
+                                Width="330"
+                                Height="422"
+                                RelativePanel.Below="txtUpNext" 
+                                ItemsSource="{Binding PreviousPlaylist}" Margin="0,10,-14,0">
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding}"
+                                               TextAlignment="Center"
+                                               FontWeight="Light"
+                                               HorizontalAlignment="Stretch"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -97,7 +119,8 @@
                     <TextBox Name="song"/>
                     <TextBlock></TextBlock>
                     <Button Content="Add to Queue"
-                    	HorizontalAlignment="Stretch" Click="Button_Click"/>
+                    	HorizontalAlignment="Stretch" Click="Queue_Click"/>
+                    <TextBlock Name="queueMessage" TextWrapping="WrapWholeWords"></TextBlock>
                 </StackPanel>
             </PivotItem>
         </Pivot>

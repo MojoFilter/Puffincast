@@ -16,6 +16,7 @@ namespace Puffincast.Universal.ViewModels
     public class MainPageViewModel : INotifyPropertyChanged
     {
         private Playlist playlist { get; set; }
+        private IEnumerable<String> previousPlaylist { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -28,6 +29,15 @@ namespace Puffincast.Universal.ViewModels
             {
                 playlist = value;
                 NotifyPropertyChanged("Playlist");
+            }
+        }
+        public IEnumerable<string> PreviousPlaylist
+        {
+            get { return previousPlaylist; }
+            set
+            {
+                previousPlaylist = value;
+                NotifyPropertyChanged("PreviousPlaylist");
             }
         }
 
@@ -50,6 +60,34 @@ namespace Puffincast.Universal.ViewModels
         {
             Playlist = await CommandHandler.Control.GetPlaylist();
         }
+        public async Task GetPreviousPlaylist()
+        {
+           var list = await CommandHandler.Control.GetPreviousPlaylist();
+            previousPlaylist = list.Reverse();
+        }
 
+        public async Task<string> Queue(string artist, string song)
+        {
+            var isPick = artist != string.Empty && song != string.Empty;
+            var isYolo = artist == string.Empty && song != string.Empty;
+
+            if (isPick)
+            {
+                var command = "pick " + artist + " - " + song;
+                var message = await CommandHandler.Pick("uwp", command);
+                return message;
+            }
+            else if (isYolo)
+            {
+                var command = "play " + song;
+                var message = await CommandHandler.Pick("uwp", command);
+                return message;
+            }
+            else
+            {
+                var message = "The artist name is optional, but a song name is required.";
+                return message;
+            }
+        }
     }
 }

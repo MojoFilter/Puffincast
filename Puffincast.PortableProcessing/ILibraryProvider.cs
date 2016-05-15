@@ -19,18 +19,6 @@ namespace Puffincast.Processing
         Task<bool> Enqueue(string key);
     }
 
-    public struct Track
-    {
-        public string Name { get; }
-        public string Key { get; }
-
-        public Track(string name, string key)
-        {
-            this.Name = name;
-            this.Key = key;
-        }
-    }
-
     public class MlwwwLibraryProvider : ILibraryProvider
     {
         private static readonly string UriBase = "http://shout.danhax.com:4801/";
@@ -96,6 +84,7 @@ namespace Puffincast.Processing
             var docType = @"<!DOCTYPE .*>";
             var newDocType = @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"" [
    <!ENTITY euml ""&#235;"">
+   <!ENTITY eacute ""&#233;"">
    <!ENTITY nbsp ""&#160;"">
 ]>";
             return Regex.Replace(xhtml, docType, newDocType);

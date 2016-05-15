@@ -4,14 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
-using Microsoft.Band;
-using Microsoft.Band.Tiles;
-using Microsoft.Band.Tiles.Pages;
+using Windows.UI.Popups;
 
-using Puffincast.Processing;
-using Windows.Storage;
 using Puffincast.Universal.ViewModels;
+
 
 namespace Puffincast.Universal
 {
@@ -27,34 +23,32 @@ namespace Puffincast.Universal
             Loaded += OnLoad;
         }
 
-        public async void OnLoad(object sender, RoutedEventArgs e)
+        private void OnLoad(object sender, RoutedEventArgs e)
         {
-            await Vm.GetPlaylist();
+            Refresh();
         }
 
         private async void Previous_Click(object sender, RoutedEventArgs e)
         {
             await Vm.CommandHandler.Control.Prev();
+            Refresh();
         }
 
         private async void Play_Click(object sender, RoutedEventArgs e)
         {
             await Vm.CommandHandler.Control.Play();
+            Refresh();
         }
 
         private async void Next_Click(object sender, RoutedEventArgs e)
         {
             await Vm.CommandHandler.Control.Next();
+            Refresh();
         }
 
-        private void Setting_Click(object sender, RoutedEventArgs e)
+        private void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(Puffincast.Universal.Settings));
-        }
-
-        private async void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            await Vm.GetPlaylist();
+            Refresh();
         }
 
         private async void Pause_Click(object sender, RoutedEventArgs e)
@@ -69,7 +63,36 @@ namespace Puffincast.Universal
 
         private async void Queue_Click(object sender, RoutedEventArgs e)
         {
-            await Vm.CommandHandler.Pick(artist.Text, song.Text);
+            queueMessage.Text = "";
+            var message = await Vm.Queue(artist.Text, song.Text);
+
+            switch (message)
+            {
+                case "The artist name is optional, but a song name is required.":
+                    var dialog = new MessageDialog(message);
+
+                    dialog.Commands.Add(new Windows.UI.Popups.UICommand("Got it.") { Id = 0 });
+                    await dialog.ShowAsync();
+                    break;
+                default:
+                    queueMessage.Text = message.Replace(":+1:","").Replace("_","");
+                    artist.Text = "";
+                    song.Text = "";
+                    break;
+            }
+            Refresh();
+        }
+
+        private void Setting_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(Puffincast.Universal.Settings));
+        }
+
+        private async void Refresh()
+        {
+            await Task.Delay(2000);
+            await Vm.GetPlaylist();
+            await Vm.GetPreviousPlaylist();
         }
     }
 }

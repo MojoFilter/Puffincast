@@ -8,8 +8,8 @@
     <ProjectGuid>{840A7EB4-3685-4C09-B15D-BA2259321313}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Puffincast.PortableProcessing</RootNamespace>
-    <AssemblyName>Puffincast.PortableProcessing</AssemblyName>
+    <RootNamespace>Puffincast.Processing</RootNamespace>
+    <AssemblyName>Puffincast.Processing</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,12 +35,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="ILibraryProvider.cs" />
     <Compile Include="IPuffinBot.cs" />
     <Compile Include="ISettingsProvider.cs" />
     <Compile Include="IWinampControl.cs" />
+    <Compile Include="Playlist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Track.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
