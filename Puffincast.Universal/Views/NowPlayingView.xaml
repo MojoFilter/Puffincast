@@ -17,12 +17,12 @@
 
     <StackPanel>
         <TextBlock >Now playing</TextBlock>
-        <TextBlock Style="{StaticResource track}" Text="{Binding NowPlaying}"></TextBlock>
+        <TextBlock x:Name="NowPlaying" Style="{StaticResource track}" Text="{Binding NowPlaying}" />
         <TextBlock>You just heard</TextBlock>
-        <TextBlock Style="{StaticResource track}"  Text="{Binding LastPlayed}" />
+        <TextBlock x:Name="LastPlayed" Style="{StaticResource track}" Text="{Binding LastPlayed}" />
         
         <TextBlock>Coming up next</TextBlock>
-        <ItemsControl ItemsSource="{Binding Next}">
+        <ItemsControl x:Name="NextList" ItemsSource="{Binding Next}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Style="{StaticResource track}" Text="{Binding}" />

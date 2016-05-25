@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Puffincast.Universal.ViewModels
 {
-    abstract class AreaViewModel : ReactiveObject
+    public abstract class AreaViewModel : ReactiveObject
     {
         public string Title { get; }
 

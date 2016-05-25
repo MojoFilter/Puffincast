@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Puffincast.Universal.ViewModels;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +24,6 @@ namespace Puffincast.Universal.Views
         public NowPlayingView()
         {
             this.InitializeComponent();
-        }
-    }
+        }        
+    }    
 }

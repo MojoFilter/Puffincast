@@ -10,13 +10,20 @@ using System.Threading.Tasks;
 
 namespace Puffincast.Universal.Models
 {
-    interface IPuffinClient : IReactiveObject
+    public interface IPuffinClient : IReactiveObject
     {
         Playlist Playlist { get; }
+        Task Previous();
+        Task Play();
+        Task Pause();
+        Task Next();
+        Task Clear();
     }
 
     class PuffinClient : ReactiveObject, IPuffinClient
     {
+        private IWinampControl control;
+
         private ObservableAsPropertyHelper<Playlist> _Playlist;
         public Playlist Playlist { get { return _Playlist.Value; } }
 
@@ -24,17 +31,42 @@ namespace Puffincast.Universal.Models
         public PuffinClient(TimeSpan? updateRate = null, IWinampControl control = null)
         {
             TimeSpan rate = updateRate ?? TimeSpan.FromSeconds(2.0);
-            control = control ?? new HttpQWinampControl(new SettingsProvider());
+            this.control = control ?? new HttpQWinampControl(new SettingsProvider());
             var updateLoop = Observable.Interval(rate)
-                .SelectMany(_ => control.GetPlaylist())
+                .SelectMany(_ => this.control.GetPlaylist())
                 .Retry()
-                .Distinct();
+                .Distinct()
+                .Publish()
+                .RefCount();
 
             this._Playlist = updateLoop
                 .ToProperty(this, x => x.Playlist);
-            updateLoop.Subscribe(p=>Debug.WriteLine(p.Current));
-            this.WhenAnyValue(x => x.Playlist).Subscribe(p => Debug.WriteLine("From property: " + p?.Current));
-            
+        }
+
+        public Task Previous()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Play()
+        {
+            Debug.WriteLine("PLAY");
+            return Task.CompletedTask;
+        }
+
+        public Task Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Next()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Clear()
+        {
+            throw new NotImplementedException();
         }
     }
 }
