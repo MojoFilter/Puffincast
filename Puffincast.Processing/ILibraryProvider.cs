@@ -87,7 +87,11 @@ namespace Puffincast.Processing
    <!ENTITY eacute ""&#233;"">
    <!ENTITY nbsp ""&#160;"">
 ]>";
-            return Regex.Replace(xhtml, docType, newDocType);
+            var processed = Regex.Replace(xhtml, docType, newDocType);
+
+            var pattern = @" LIKE ""(?<encoded>.+?)""""";
+            processed = Regex.Replace(processed, pattern, m => $"%20LIKE%20%22{m.Groups["encoded"].Value.Replace("%%", "%")}%22\"");
+            return processed;
         }
     }
 }
