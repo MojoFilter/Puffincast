@@ -23,7 +23,7 @@ namespace Puffincast.Processing
 
         public IWinampControl Control { get; set; }
 
-        public CommandHandler(ISettingsProvider settings, IWinampControl control = null, 
+        public CommandHandler(ISettingsProvider settings, IWinampControl control = null,
             ILibraryProvider library = null, IPuffinBot puffinBot = null)
         {
             Contract.Requires(settings != null);
@@ -40,7 +40,7 @@ namespace Puffincast.Processing
         {
             //commandText = commandText ?? string.Empty;
             var command = commandText ?? string.Empty; //.Split(new[] { ' ' }, 1).First();
-            Command cmd = this.commands.FirstOrDefault(c => command.StartsWith(c.Name,StringComparison.CurrentCultureIgnoreCase));
+            Command cmd = this.commands.FirstOrDefault(c => command.StartsWith(c.Name, StringComparison.CurrentCultureIgnoreCase));
             if (cmd == null)
             {
                 return "Huh? " + await this.Help(user, command);
@@ -52,6 +52,15 @@ namespace Puffincast.Processing
 
         public async Task<string> Play(string user, string cmd, bool allowFuzzy)
         {
+            var splitCmd = cmd.Split('#');
+            int choice = -1;
+            if (splitCmd.Length > 1)
+            {
+                choice = Convert.ToInt32(splitCmd[1]);
+            }
+
+            cmd = splitCmd[0];
+
             if (cmd.Length > 5)
             {
                 var query = cmd.Substring(5);
@@ -71,12 +80,22 @@ namespace Puffincast.Processing
                 {
                     matches = (await this.library.Search(query)).ToList();
                 }
+
                 if (matches.Any())
                 {
-                    if (!allowFuzzy && matches.Count() > 1)
+                    if (matches.Count() > 1)
                     {
-                        return "Be more specific. Your search matched the following tracks:\n" +
-                            string.Join("\n", matches.Select(t => t.Name));
+                        if (choice != -1)
+                        {
+                            var key = matches.OrderBy(p => p.Name).ToList()[choice].Key;
+                            await this.library.Enqueue(key);
+                            await puffinBot.NotifyEnqueue(user, key);
+                        }
+                        else
+                        {
+                            return "Be more specific. Your search matched the following tracks:\n" +
+                                string.Join("\n", matches.OrderBy(p => p.Name).Select(t => t.Name));
+                        }
                     }
                     var pick = matches.ElementAt(rnd.Next(0, matches.Count()));
                     if (await this.library.Enqueue(pick.Key))
@@ -105,7 +124,7 @@ namespace Puffincast.Processing
         private Task<string> Help(string user, string cmd) =>
             Task.FromResult("Here are the commands:\n" +
                 string.Join(Environment.NewLine,
-                    this.commands.OrderBy(c=>c.Name)
+                    this.commands.OrderBy(c => c.Name)
                     .Select((c, i) =>
                     $"*{c.Name.PadRight(15)}* {c.Description}")));
 
