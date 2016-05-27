@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace Puffincast.Library.Core
 {
     public class LibraryScanner
     {
+        private IMusicDb db;
         private static readonly HashSet<string> extensions = new HashSet<string>(
             typeof(TagLib.SupportedMimeType).Assembly.GetExportedTypes()
             .SelectMany(t => t.GetCustomAttributes(false))
@@ -25,10 +27,10 @@ namespace Puffincast.Library.Core
                 .Where(f => !string.IsNullOrWhiteSpace(f.Extension) && extensions.Contains(f.Extension.Substring(1)))
                 .Select(f => f.FullName);
 
-        private Task<int> ProcessFile(TagLib.File file) => Task.FromResult(0);
 
         public IObservable<ScanProgress> Scan(string path) => Observable.Create<ScanProgress>(obs =>
             {
+                this.db = new XmlMusicDb(path + @"\puffindb.xml");
                 var fileList = this.DiscoverFiles(path).ToList();
                 var files = fileList
                 .Select((filename, index) => new ScanProgress(index / (double)fileList.Count, filename))
@@ -51,15 +53,24 @@ namespace Puffincast.Library.Core
                         return new { file, success };
                     })
                     .Where(x => x.success)
-                    .Select(x => x.file)
-                    .SelectMany(this.ProcessFile);
+                    .Select(x => new MusicEntry
+                    {
+                        FileName = x.file.Name,
+                        Title = x.file.Tag.Title,
+                        Performers = x.file.Tag.Performers
+                    })
+                    .SelectMany(f => this.db.Update(f).ToObservable())
+                    .ToTask()
+                    .ContinueWith(t => this.db.Save())
+                    .Unwrap()
+                    .ToObservable();
+                    
 
                 return new CompositeDisposable(
                         files.Subscribe(obs.OnNext, obs.OnError),
-                        processing.Subscribe(_ => { }, obs.OnCompleted));
+                        processing.Subscribe(_ => { }, obs.OnError, obs.OnCompleted));
             });
-
-
+        
 
         public struct ScanProgress
         {
