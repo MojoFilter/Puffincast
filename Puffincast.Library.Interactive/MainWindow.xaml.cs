@@ -1,4 +1,5 @@
 ﻿using Puffincast.Library.Core;
+using Puffincast.Library.Interactive.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,12 +28,11 @@ namespace Puffincast.Library.Interactive
 
         public MainWindow()
         {
-            InitializeComponent();
             string lib = @"C:\Users\jweeks\Music";
-
-            this.s = new LibraryScanner().Scan(lib)
-                .Select(p => $"[{(int)(p.Percent * 100.0)}]% {System.IO.Path.GetFileNameWithoutExtension(p.Status)}")
-                .Subscribe(p => Debug.WriteLine(p), e => Debug.WriteLine(e.Message));
+            var vm = new ScanViewModel(new LibraryScanner(), lib);
+            this.DataContext = vm;
+            vm.Scan.Subscribe(p => Trace.WriteLine(p.Status));
+            InitializeComponent();
         }
     }
 }

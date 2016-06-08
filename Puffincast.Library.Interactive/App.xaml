@@ -2,8 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Puffincast.Library.Interactive"
+             xmlns:vm="clr-namespace:Puffincast.Library.Interactive.ViewModels"
+             xmlns:v="clr-namespace:Puffincast.Library.Interactive.Views"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <DataTemplate DataType="vm:ScanViewModel">
+            <v:ScanView ViewModel="{Binding}" />
+        </DataTemplate>
     </Application.Resources>
 </Application>

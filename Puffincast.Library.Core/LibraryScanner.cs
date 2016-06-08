@@ -8,6 +8,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Puffincast.Library.Core
@@ -30,7 +31,8 @@ namespace Puffincast.Library.Core
 
         public IObservable<ScanProgress> Scan(string path) => Observable.Create<ScanProgress>(obs =>
             {
-                this.db = new XmlMusicDb(path + @"\puffindb.xml");
+                var dbFile = path + @"\puffindb.xml";
+                this.db = new XmlMusicDb(dbFile);
                 var fileList = this.DiscoverFiles(path).ToList();
                 var files = fileList
                 .Select((filename, index) => new ScanProgress(index / (double)fileList.Count, filename))
@@ -60,11 +62,10 @@ namespace Puffincast.Library.Core
                         Performers = x.file.Tag.Performers
                     })
                     .SelectMany(f => this.db.Update(f).ToObservable())
-                    .ToTask()
-                    .ContinueWith(t => this.db.Save())
-                    .Unwrap()
-                    .ToObservable();
-                    
+                    .Do(_ => obs.OnNext(new ScanProgress(1.0, $"Saving to {dbFile}")))
+                    .RunAsync(CancellationToken.None).SelectMany(_ => this.db.Save().ToObservable())
+                    .Do(_ => obs.OnNext(new ScanProgress(1.0, "Complete")));
+
 
                 return new CompositeDisposable(
                         files.Subscribe(obs.OnNext, obs.OnError),
